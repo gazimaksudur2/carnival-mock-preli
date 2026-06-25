@@ -123,7 +123,7 @@ rollback). The short version:
 
 ```bash
 # On a fresh Ubuntu 22.04/24.04 EC2 instance:
-sudo bash deploy/ec2-setup.sh https://github.com/YOUR-USER/YOUR-REPO.git main
+sudo bash deploy/ec2-setup.sh https://github.com/gazimaksudur2/carnival-mock-preli.git main
 ```
 
 ### Railway / Render / Fly.io

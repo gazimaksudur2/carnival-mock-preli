@@ -8,7 +8,7 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-REPO_URL="https://github.com/YOUR-USERNAME/YOUR-REPO.git"
+REPO_URL="https://github.com/gazimaksudur2/carnival-mock-preli.git"
 BRANCH="main"
 APP_DIR="/opt/ticket-classifier"
 

@@ -74,9 +74,9 @@ container on first boot. Wait ~3–5 minutes, then jump to step 6.
 3. Pull this repo (or just `scp` the files in) and run the bootstrap:
 
    ```bash
-   git clone https://github.com/YOUR-USER/YOUR-REPO.git
+   git clone https://github.com/gazimaksudur2/carnival-mock-preli.git
    cd YOUR-REPO
-   sudo bash deploy/ec2-setup.sh https://github.com/YOUR-USER/YOUR-REPO.git main
+   sudo bash deploy/ec2-setup.sh https://github.com/gazimaksudur2/carnival-mock-preli.git main
    ```
 
    This script:
