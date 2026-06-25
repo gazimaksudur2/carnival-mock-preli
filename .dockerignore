@@ -1,0 +1,36 @@
+# Local venv / caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets / local config
+.env
+
+# Git
+.git/
+.gitignore
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Tests + docs (not needed in the runtime image)
+tests/
+test_*.py
+*.md
+
+# Docker meta
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+
+curlapi.txt
+task.txt

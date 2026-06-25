@@ -22,4 +22,5 @@ htmlcov/
 build/
 dist/
 
-*.txt
+curlapi.txt
+task.txt

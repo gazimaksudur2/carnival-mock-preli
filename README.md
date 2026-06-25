@@ -104,9 +104,29 @@ pytest -v
 
 ## Deploy
 
-Any host that runs Python + uvicorn works. For free HTTPS:
+### Docker (local)
 
-- **Railway** — `npm i -g @railway/cli && railway init && railway up`
-- **Render** — connect the repo, it auto-builds and gives a `https://…onrender.com` URL.
+```bash
+docker compose up -d --build
+curl http://127.0.0.1:8000/health
+```
 
-Set `PORT` in the environment; uvicorn reads it automatically.
+The image is a multi-stage Python 3.12 build, runs as a non-root user, and
+uses **gunicorn + uvicorn workers** for production. It exposes a `HEALTHCHECK`
+and a log driver that caps each log file at 10 MB × 3 files.
+
+### AWS EC2
+
+See [`deploy/README.md`](deploy/README.md) for the full step-by-step guide
+(security group, key pair, user-data bootstrap, systemd unit, HTTPS via Caddy,
+rollback). The short version:
+
+```bash
+# On a fresh Ubuntu 22.04/24.04 EC2 instance:
+sudo bash deploy/ec2-setup.sh https://github.com/YOUR-USER/YOUR-REPO.git main
+```
+
+### Railway / Render / Fly.io
+
+Connect the repo — they'll detect the `Dockerfile` automatically and give you
+a public HTTPS URL. Set `PORT` in the environment; the image reads it.
