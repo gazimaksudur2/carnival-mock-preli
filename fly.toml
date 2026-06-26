@@ -1,23 +1,38 @@
-# fly.toml app configuration file generated for ticket-classifier on 2026-06-25T23:53:07Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# Fly.io configuration for the ticket-classifier FastAPI service.
+# See https://fly.io/docs/reference/configuration/ for the full schema.
 
-app = 'ticket-classifier'
-primary_region = 'ams'
+app           = "ticket-classifier"
+primary_region = "ams"
 
 [build]
 
+[env]
+  PORT              = "8000"
+  HOST              = "0.0.0.0"
+  GUNICORN_WORKERS  = "2"
+
+# Public HTTP service — Fly's edge proxies HTTPS traffic to this internal port.
 [http_service]
-  internal_port = 7999
-  force_https = true
-  auto_stop_machines = 'stop'
+  internal_port       = 8000
+  force_https         = true
+  auto_stop_machines  = "stop"
   auto_start_machines = true
   min_machines_running = 0
-  processes = ['app']
+
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 50
+    soft_limit = 25
+
+# Hit /health so cold-start healthchecks pass and the proxy starts routing traffic.
+[[http_service.checks]]
+  interval     = "15s"
+  timeout      = "5s"
+  grace_period = "20s"
+  method       = "GET"
+  path         = "/health"
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
-  memory_mb = 256
+  cpu_kind = "shared"
+  cpus     = 1
+  memory   = "256mb"
