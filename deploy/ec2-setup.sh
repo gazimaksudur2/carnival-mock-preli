@@ -47,16 +47,27 @@ systemctl enable --now docker
 usermod -aG docker ubuntu || true
 
 echo ">>> Cloning $REPO_URL @ $BRANCH into $APP_DIR..."
+# Move out of $APP_DIR if we're inside it, otherwise `rm -rf` would
+# delete our own working directory and `git clone` would fail with
+# "Unable to read current working directory".
+pushd / >/dev/null 2>&1 || cd /
 rm -rf "$APP_DIR"
 git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$APP_DIR"
-chown -R ubuntu:ubuntu "$APP_DIR"
+popd >/dev/null 2>&1 || true
+# chown is best-effort: skip when the `ubuntu` user doesn't exist (e.g. AMI
+# images with a different default user, or running inside a container).
+chown -R ubuntu:ubuntu "$APP_DIR" 2>/dev/null || true
 
 echo ">>> Building image and starting container..."
-cd "$APP_DIR"
+# `cd` defensively — the earlier `rm -rf` may have moved us.
+cd "$APP_DIR" 2>/dev/null || cd /
 docker compose up -d --build
 
-echo ">>> Writing systemd unit for auto-restart..."
-cat > /etc/systemd/system/${SERVICE_NAME}.service <<EOF
+# Only register the systemd unit when systemd is actually present. Inside
+# containers (no PID 1 systemd) this would fail with `policy-rc.d returned 101`.
+if [[ -d /run/systemd/system ]]; then
+  echo ">>> Writing systemd unit for auto-restart..."
+  cat > /etc/systemd/system/${SERVICE_NAME}.service <<EOF
 [Unit]
 Description=Ticket Classifier container
 After=docker.service
@@ -76,11 +87,19 @@ Group=ubuntu
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload
-systemctl enable ${SERVICE_NAME}.service
+  systemctl daemon-reload
+  systemctl enable ${SERVICE_NAME}.service
+else
+  echo ">>> No systemd detected (container?) — skipping unit registration."
+fi
 
 echo ">>> Opening firewall port 8000..."
-ufw allow OpenSSH || true
+# `ufw` may not be installed inside a container; tolerate that.
+command -v ufw >/dev/null 2>&1 && {
+  ufw allow OpenSSH || true
+  ufw allow 8000/tcp || true
+  yes | ufw enable || true
+} || echo ">>> ufw not available, skipping firewall config."
 ufw allow 8000/tcp || true
 yes | ufw enable || true
 
